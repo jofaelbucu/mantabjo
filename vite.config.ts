@@ -12,17 +12,16 @@
 //     },
 //   },
 // })
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path'; // ⬅️ Tambahkan ini
+import path from 'path';
 
 export default defineConfig({
-  base: '/mantabjo/', // ⬅️ sesuai nama repo GitHub
+  base: '/mantabjo/', // <== HARUS sesuai dengan nama repository GitHub
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'), // ⬅️ Definisi alias "@"
+      '@': path.resolve(__dirname, 'src'),
     },
   },
-});
+})
