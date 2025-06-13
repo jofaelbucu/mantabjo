@@ -15,8 +15,14 @@
 
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path'; // ⬅️ Tambahkan ini
 
 export default defineConfig({
-  base: '/mantabjo/', // Ganti dengan nama repo GitHub-mu
+  base: '/mantabjo/', // ⬅️ sesuai nama repo GitHub
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'), // ⬅️ Definisi alias "@"
+    },
+  },
 });
