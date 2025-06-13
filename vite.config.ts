@@ -17,15 +17,21 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// Ganti sesuai nama repository GitHub kamu
+// Ganti dengan nama repo GitHub kamu
 const repoName = 'mantabjo';
 
 export default defineConfig({
-  base: `/${repoName}/`, // untuk GitHub Pages
+  base: `/${repoName}/`, // Penting untuk GitHub Pages
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'), // agar @ bisa digunakan untuk import
+      '@': path.resolve(__dirname, './src'), // Alias untuk path absolute
     },
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+  },
 });
+
