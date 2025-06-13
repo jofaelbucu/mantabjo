@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
@@ -63,7 +63,7 @@ const Modal = () => {
   const openDialogForEdit = (modal: ModalType) => {
     setEditingModal(modal);
     setValue('jumlah', modal.jumlah);
-    setValue('tanggal', modal.tanggal_hutang || modal.tanggal); // Handle both potential field names
+    setValue('tanggal', modal.tanggal_hutang); // Handle both potential field names
     setValue('keterangan', modal.keterangan || '');
     setIsDialogOpen(true);
   };
@@ -143,7 +143,7 @@ const Modal = () => {
                   <div key={modal.id} className="flex justify-between items-center border-b pb-2">
                     <div>
                       <p className="font-medium">{formatRupiah(modal.jumlah)}</p>
-                      <p className="text-sm text-muted-foreground">{formatTanggal(modal.tanggal_hutang || modal.tanggal)}</p>
+                      <p className="text-sm text-muted-foreground">{formatTanggal(modal.tanggal_hutang)}</p>
                        {modal.keterangan && <p className="text-xs text-gray-500">{modal.keterangan}</p>}
                     </div>
                     <Button variant="outline" size="sm" onClick={() => openDialogForEdit(modal)}>Edit</Button>

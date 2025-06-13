@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from '@/lib/supabase';
 import { formatRupiah, formatTanggal } from '@/lib/utils';
-import type { Pelanggan as PelangganType, Transaksi as TransaksiType } from '@/lib/supabase';
+import type { Pelanggan as PelangganType, Transaksi } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { Loader2, Trash2, Pencil } from 'lucide-react';
@@ -41,13 +41,13 @@ type TransaksiFormValues = z.infer<typeof transaksiSchema>;
 
 const Transaksi = () => {
   const { user } = useAuth();
-  const [transaksis, setTransaksis] = useState<TransaksiType[]>([]);
+  const [transaksis, setTransaksis] = useState<Transaksi[]>([]);
   const [pelanggans, setPelanggans] = useState<PelangganType[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // State untuk melacak transaksi yang sedang diedit
-  const [editingTransaksi, setEditingTransaksi] = useState<TransaksiType | null>(null);
+  const [editingTransaksi, setEditingTransaksi] = useState<Transaksi | null>(null);
 
   const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm<TransaksiFormValues>({
     resolver: zodResolver(transaksiSchema),
@@ -136,11 +136,11 @@ const Transaksi = () => {
   };
 
   // Fungsi untuk memulai mode edit
-  const handleEdit = (transaksi: TransaksiType) => {
+  const handleEdit = (transaksi: Transaksi) => {
     setEditingTransaksi(transaksi);
     setValue('jenis_transaksi', transaksi.jenis_transaksi);
-    setValue('nomor_tujuan', transaksi.nomor_tujuan);
-    setValue('pelanggan_id', transaksi.pelanggan_id || '');
+    setValue('nomor_tujuan', transaksi.nomor_tujuan || '');
+    setValue('pelanggan_id', transaksi.pelanggan_id ? transaksi.pelanggan_id : '');
     setValue('nominal', transaksi.nominal);
     setValue('harga_beli', transaksi.harga_beli);
     setValue('harga_jual', transaksi.harga_jual);
@@ -229,7 +229,7 @@ const Transaksi = () => {
                 {transaksis.map((t: any) => ( // Use 'any' type to access joined 'pelanggan' data
                   <div key={t.id} className="flex justify-between items-center border-b pb-2">
                     <div>
-                      <p className="font-medium">{t.jenis_transaksi} {formatRupiah(t.nominal, '')}</p>
+                      <p className="font-medium">{t.jenis_transaksi} {formatRupiah(t.nominal)}</p>
                       <p className="text-sm text-muted-foreground">{t.pelanggan?.nama || t.nomor_tujuan}</p>
                       <p className="text-xs text-gray-500">{formatTanggal(t.created_at)}</p>
                     </div>

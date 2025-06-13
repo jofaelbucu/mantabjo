@@ -65,7 +65,7 @@ export const generateLabaRugiPDF = ({ data, periode }: GenerateLabaRugiPDFProps)
     foot: [
       ['Laba Bersih (Laba Kotor - C)', { content: formatRupiah(data.labaBersih), styles: { halign: 'right' } }]
     ],
-    didDrawPage: (hookData) => { y = hookData.cursor.y + 10; } // Update posisi y setelah tabel
+    didDrawPage: (hookData: any) => { y = hookData.cursor.y + 10; } // Update posisi y setelah tabel
   });
 
   // --- Rincian Pendapatan (dari tabel transaksi) ---
@@ -93,7 +93,7 @@ export const generateLabaRugiPDF = ({ data, periode }: GenerateLabaRugiPDFProps)
       body: pendapatanBody,
       theme: 'striped',
       headStyles: { fillColor: [22, 160, 133] }, // Warna hijau
-      didDrawPage: (hookData) => { y = hookData.cursor.y + 10; }
+      didDrawPage: (hookData: any) => { y = hookData.cursor.y + 10; }
     });
   }
 
@@ -129,7 +129,7 @@ export const generateLabaRugiPDF = ({ data, periode }: GenerateLabaRugiPDFProps)
        body: allBeban.map(item => [item.tanggal, item.kategori, item.keterangan, item.jumlah]),
        theme: 'striped',
        headStyles: { fillColor: [192, 57, 43] }, // Warna merah
-       didDrawPage: (hookData) => { y = hookData.cursor.y + 10; }
+       didDrawPage: (hookData: any) => { y = hookData.cursor.y + 10; }
      });
    }
 

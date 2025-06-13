@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
-import { useAuth } from '@/lib/AuthContext';
 
 const Layout = () => {
   return (

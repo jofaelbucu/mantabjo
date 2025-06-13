@@ -70,7 +70,24 @@ export type Pelanggan = {
   user_id: string;
   created_at: string;
   email?: string;
-  status?: 'aktif' | 'non_aktif';
+  status: 'aktif' | 'non_aktif';
+};
+
+export type Transaksi = {
+  id: string;
+  jenis_transaksi: string;
+  nominal: number;
+  harga_beli: number;
+  harga_jual: number;
+  keuntungan: number;
+  tanggal_transaksi: string;
+  keterangan?: string;
+  nomor_tujuan?: string;
+  pelanggan_id?: string;
+  user_id: string;
+  created_at: string;
+  status: 'sukses' | 'pending' | 'gagal';
+  pelanggan?: Pelanggan; // Assuming this is for joined data
 };
 
 // Tipe ini mungkin diperlukan untuk query dengan join

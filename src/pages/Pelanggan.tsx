@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Resolver } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,7 @@ const pelangganSchema = z.object({
   nomor_hp: z.string().min(1, 'Nomor HP wajib diisi'),
   alamat: z.string().optional(),
   email: z.string().email('Format email tidak valid').optional(),
-  status: z.enum(['aktif', 'non_aktif']).default('aktif'),
+  status: z.enum(['aktif', 'non_aktif']),
 });
 
 type PelangganFormValues = z.infer<typeof pelangganSchema>;
@@ -23,13 +23,13 @@ const Pelanggan = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<PelangganFormValues>({
-    resolver: zodResolver(pelangganSchema),
+    resolver: zodResolver(pelangganSchema) as Resolver<PelangganFormValues>,
     defaultValues: {
+      status: 'aktif',
       nama: '',
       nomor_hp: '',
       alamat: '',
       email: '',
-      status: 'aktif',
     },
   });
 
@@ -267,7 +267,7 @@ const Pelanggan = () => {
                   <div key={pelanggan.id} className="flex justify-between border-b pb-2">
                     <div>
                       <p className="font-medium">{pelanggan.nama}</p>
-                      <p className="text-sm">{pelanggan.nomor_telepon}</p>
+                      <p className="text-sm">{pelanggan.nomor_hp}</p>
                       {pelanggan.alamat && (
                         <p className="text-xs text-muted-foreground">{pelanggan.alamat}</p>
                       )}
