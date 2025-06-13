@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS modals (
     jumlah DECIMAL(15, 2) NOT NULL,
     tanggal DATE NOT NULL DEFAULT CURRENT_DATE,
     keterangan TEXT,
+    -- KOLOM BARU DITAMBAHKAN DI SINI
+    sumber_dana VARCHAR(50) NOT NULL CHECK (sumber_dana IN ('cash', 'seabank', 'gopay', 'aplikasi_isipulsa')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -20,6 +22,8 @@ CREATE TABLE IF NOT EXISTS pengeluaran (
     keuntungan DECIMAL(15, 2) DEFAULT 0,
     tanggal DATE NOT NULL DEFAULT CURRENT_DATE,
     kategori VARCHAR(50) CHECK (kategori IN ('usaha', 'non_usaha')),
+    -- KOLOM BARU DITAMBAHKAN DI SINI
+    sumber_dana VARCHAR(50) NOT NULL CHECK (sumber_dana IN ('cash', 'seabank', 'gopay', 'aplikasi_isipulsa')),
     keterangan TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -54,6 +58,9 @@ CREATE TABLE IF NOT EXISTS hutang (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+ALTER TABLE public.hutang
+ADD COLUMN tanggal_lunas timestamptz NULL;
+
 CREATE TABLE IF NOT EXISTS transaksi (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -65,6 +72,8 @@ CREATE TABLE IF NOT EXISTS transaksi (
     harga_jual DECIMAL(15, 2) NOT NULL,
     keuntungan DECIMAL(15, 2) GENERATED ALWAYS AS (harga_jual - harga_beli) STORED,
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'sukses', 'gagal')),
+    -- KOLOM BARU DITAMBAHKAN DI SINI
+    sumber_dana VARCHAR(50) NOT NULL CHECK (sumber_dana IN ('cash', 'seabank', 'gopay', 'aplikasi_isipulsa')),
     tanggal_transaksi TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     keterangan TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

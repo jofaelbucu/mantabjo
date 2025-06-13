@@ -5,7 +5,6 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 2. Validasi penting untuk menghentikan aplikasi jika .env tidak ada atau salah.
-//    Ini mencegah error CORS yang membingungkan.
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("KONFIGURASI ERROR: Pastikan variabel VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY sudah diatur dengan benar di dalam file .env.local Anda.");
 }
@@ -14,8 +13,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 
-// --- Tipe data Anda (TIDAK ADA PERUBAHAN, sudah benar) ---
-// Bagian ini dipertahankan karena sudah benar dan digunakan di seluruh aplikasi Anda.
+// --- Tipe Data Aplikasi ---
+
+// Tipe untuk sumber dana yang konsisten di seluruh aplikasi
+type SumberDana = 'cash' | 'seabank' | 'gopay' | 'aplikasi_isipulsa';
 
 export type User = {
   id: string;
@@ -26,14 +27,12 @@ export type User = {
 export type Modal = {
   id: string;
   jumlah: number;
-  tanggal_hutang: string;
+  tanggal: string; // DISESUAIKAN: Nama kolom yang benar adalah 'tanggal'
   keterangan?: string;
   user_id: string;
   created_at: string;
   updated_at: string;
-  minggu?: number;
-  bulan?: number;
-  tahun?: number;
+  sumber_dana: SumberDana; // DITAMBAHKAN: Properti sumber_dana
 };
 
 export type Pengeluaran = {
@@ -44,6 +43,7 @@ export type Pengeluaran = {
   keterangan: string;
   tanggal: string;
   kategori: 'usaha' | 'non_usaha';
+  sumber_dana: SumberDana; // Sudah benar
   user_id: string;
   created_at: string;
 };
@@ -60,6 +60,7 @@ export type Hutang = {
   created_at: string;
   tanggal_jatuh_tempo?: string | null;
   tanggal_lunas?: string | null;
+  sumber_dana: SumberDana; // DITAMBAHKAN: Properti sumber_dana
 };
 
 export type Pelanggan = {
@@ -87,10 +88,11 @@ export type Transaksi = {
   user_id: string;
   created_at: string;
   status: 'sukses' | 'pending' | 'gagal';
-  pelanggan?: Pelanggan; // Assuming this is for joined data
+  sumber_dana: SumberDana; // DITAMBAHKAN: Properti sumber_dana
+  pelanggan?: Pelanggan;
 };
 
-// Tipe ini mungkin diperlukan untuk query dengan join
+// Tipe helper untuk query dengan join (sudah benar)
 export type HutangWithPelanggan = Hutang & {
   pelanggan: Pelanggan | null;
 };
