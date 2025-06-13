@@ -1,8 +1,8 @@
 {
   "name": "mantabjo",
-  "homepage": "https://jofaelbucu.github.io/mantabjo.git",
+  "homepage": "https://jofaelbucu.github.io/mantabjo",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,10 +11,8 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://jofaelbucu.github.io/mantabjo.git"
+  
+
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
