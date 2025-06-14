@@ -75,3 +75,8 @@
     color: hsl(var(--foreground));
   }
 }
+
+#placeholder-pilih-tanggal {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}

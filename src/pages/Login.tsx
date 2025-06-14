@@ -103,7 +103,7 @@ const Login = () => {
                 {/* --- PERUBAHAN DI SINI --- */}
                 {/* Menambahkan logo dan menghapus CardTitle */}
                 <div className="flex justify-center mb-4">
-                  <img src="/src/assets/mantabjo-merpati.png" alt="Logo MantabJo" className="w-40 h-auto" />
+                  <img src="./src/assets/mantabjo-merpati.png" alt="Logo MantabJo" className="w-40 h-auto" />
                 </div>
                 {/* CardTitle sebelumnya dihapus */}
                 {/* --- AKHIR PERUBAHAN --- */}

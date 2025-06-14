@@ -99,7 +99,7 @@ const Register = () => {
         <Card className="bg-white/70 backdrop-blur-xl border-white/30 shadow-lg">
           <CardHeader>
             <div className="flex justify-center mb-4">
-                <img src="/src/assets/mantabjo-merpati.png" alt="Logo MantabJo" className="w-40 h-auto" />
+                <img src="./src/assets/mantabjo-merpati.png" alt="Logo MantabJo" className="w-40 h-auto" />
             </div>
             <CardDescription className="text-center text-gray-600 !mt-0">
               Buat akun baru untuk menggunakan aplikasi
