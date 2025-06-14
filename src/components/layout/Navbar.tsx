@@ -13,7 +13,7 @@ import {
 import { Menu, UserCircle2 } from 'lucide-react';
 
 // Path ke logo Anda
-import AppLogo from '@/assets/mantabjo-merpati.png';
+import AppLogo from './src/assets/mantabjo-merpati.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
