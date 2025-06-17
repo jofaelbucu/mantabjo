@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS modals (
     keterangan TEXT,
     -- KOLOM BARU DITAMBAHKAN DI SINI
     sumber_dana VARCHAR(50) NOT NULL CHECK (sumber_dana IN ('cash', 'seabank', 'gopay', 'aplikasi_isipulsa')),
+    biaya_admin DECIMAL(15, 2) DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

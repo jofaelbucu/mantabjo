@@ -38,6 +38,12 @@ type DashboardStats = {
   bebanUmumSeabank: number;
   bebanUmumGopay: number;
   bebanUmumAplikasiIsiPulsa: number;
+  // State untuk biaya admin
+  biayaAdminCash: number;
+  biayaAdminSeabank: number;
+  biayaAdminGopay: number;
+  biayaAdminAplikasiIsiPulsa: number;
+  totalBiayaAdmin: number;
 };
 
 const Dashboard = () => {
@@ -61,6 +67,12 @@ const Dashboard = () => {
     bebanUmumSeabank: 0,
     bebanUmumGopay: 0,
     bebanUmumAplikasiIsiPulsa: 0,
+    // Inisialisasi state biaya admin
+    biayaAdminCash: 0,
+    biayaAdminSeabank: 0,
+    biayaAdminGopay: 0,
+    biayaAdminAplikasiIsiPulsa: 0,
+    totalBiayaAdmin: 0,
   });
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('hari-ini');
@@ -107,7 +119,7 @@ const Dashboard = () => {
       const endDateISO = endDate.toISOString();
 
       try {
-        const [modalRes, pengeluaranRes, hutangRes, transaksiRes, modalsData] = await Promise.all([
+        const [modalRes, pengeluaranRes, hutangRes, transaksiRes] = await Promise.all([
           supabase.from('modals').select('jumlah').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
           supabase.from('pengeluaran').select('jumlah, kategori, sumber_dana').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
           supabase.from('hutang').select('jumlah, status, jenis').eq('user_id', user.id).gte('tanggal_hutang', startDateISO).lte('tanggal_hutang', endDateISO),
@@ -119,6 +131,18 @@ const Dashboard = () => {
         if (hutangRes.error) throw hutangRes.error;
         if (transaksiRes.error) throw transaksiRes.error;
         
+        // Ambil data modals untuk biaya admin
+        const modalsDataRes = await supabase
+          .from('modals')
+          .select('jumlah, sumber_dana, biaya_admin')
+          .eq('user_id', user.id)
+          .gte('tanggal', startDateISO)
+          .lte('tanggal', endDateISO);
+          
+        if (modalsDataRes.error) throw modalsDataRes.error;
+        const modalsData = modalsDataRes.data || [];
+        
+        console.log('Modals data for biaya admin:', modalsData);
         const pengeluaranData = pengeluaranRes.data || [];
         const transaksiData = transaksiRes.data || [];
 
@@ -151,20 +175,20 @@ const Dashboard = () => {
 
         // Calculate total biaya admin
         const biayaAdminCash = modalsData
-          .filter(m => m.sumber_dana === 'cash' && m.biaya_admin)
-          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+          .filter(m => m.sumber_dana === 'cash')
+          .reduce((sum, item) => sum + (Number(item.biaya_admin) || 0), 0);
 
         const biayaAdminSeabank = modalsData
-          .filter(m => m.sumber_dana === 'seabank' && m.biaya_admin)
-          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+          .filter(m => m.sumber_dana === 'seabank')
+          .reduce((sum, item) => sum + (Number(item.biaya_admin) || 0), 0);
 
         const biayaAdminGopay = modalsData
-          .filter(m => m.sumber_dana === 'gopay' && m.biaya_admin)
-          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+          .filter(m => m.sumber_dana === 'gopay')
+          .reduce((sum, item) => sum + (Number(item.biaya_admin) || 0), 0);
 
         const biayaAdminAplikasiIsiPulsa = modalsData
-          .filter(m => m.sumber_dana === 'aplikasi_isipulsa' && m.biaya_admin)
-          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+          .filter(m => m.sumber_dana === 'aplikasi_isipulsa')
+          .reduce((sum, item) => sum + (Number(item.biaya_admin) || 0), 0);
 
         const totalBiayaAdmin = biayaAdminCash + biayaAdminSeabank + biayaAdminGopay + biayaAdminAplikasiIsiPulsa;
 

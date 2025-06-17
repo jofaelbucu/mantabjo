@@ -140,12 +140,12 @@ const Modal = () => {
     try {
       // Kurangi saldo sumber asal (termasuk biaya admin)
       const { error: errorKurang } = await supabase.from('modals').insert({
-        jumlah: -(values.jumlah + values.biaya_admin),
+        jumlah: -(values.jumlah + Number(values.biaya_admin)),
         tanggal: values.tanggal,
         keterangan: `Transfer ke ${sumberDanaOptions.find(s => s.id === values.ke_sumber)?.label} - ${values.keterangan || ''} (Biaya Admin: ${formatRupiah(values.biaya_admin)})`,
         sumber_dana: values.dari_sumber,
         user_id: user.id,
-        biaya_admin: values.biaya_admin
+        biaya_admin: Number(values.biaya_admin)
       });
 
       if (errorKurang) throw errorKurang;
