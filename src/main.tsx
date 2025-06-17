@@ -5,7 +5,6 @@
 // import { router } from './router'
 // import { AuthProvider } from './lib/AuthContext'
 
-
 // createRoot(document.getElementById('root')!).render(
 //   <StrictMode>
 //     <AuthProvider>
@@ -26,5 +25,5 @@ createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </StrictMode>
+  </StrictMode>,
 )

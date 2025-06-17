@@ -13,7 +13,7 @@ import {
 import { Menu, UserCircle2 } from 'lucide-react';
 
 // Path ke logo Anda
-import AppLogo from '@/assets/mantabjo-icon.svg';
+import AppLogo from '@/assets/mantabjo-merpati.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,9 +21,11 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
 
   const isActive = (path: string) => {
+    // Membuat link Dashboard hanya aktif jika path-nya persis, bukan sebagai awalan
     if (path === '/dashboard') {
       return location.pathname === path;
     }
+    // Untuk link lain, akan aktif jika path saat ini diawali dengan path link
     return location.pathname.startsWith(path);
   };
 
@@ -38,12 +40,13 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
+    // Latar belakang navbar dengan efek glassmorphism dan sentuhan pink
+    <header className="sticky top-0 z-40 w-full border-b border-pink-100/80 bg-white/80 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center space-x-2">
-            {/* PERUBAHAN: Ukuran logo diperbesar */}
-            <img src={AppLogo} alt="MantabJo Logo" className="h-10 w-auto" />
+            {/* Ukuran logo disesuaikan agar pas di dalam navbar */}
+            <img src={AppLogo} alt="MantabJo Logo" className="h-14 w-auto" />
           </Link>
         </div>
 
@@ -54,9 +57,13 @@ const Navbar = () => {
               {menuItems.map((item) => (
                 <NavigationMenuItem key={item.path}>
                   <Link to={item.path}>
+                    {/* Styling untuk link navigasi dengan state aktif dan hover */}
                     <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      active={isActive(item.path)}
+                      className={`${navigationMenuTriggerStyle()} transition-colors duration-200 text-sm font-medium ${
+                        isActive(item.path)
+                          ? 'bg-pink-100 text-pink-700 font-semibold focus:bg-pink-100 focus:text-pink-700'
+                          : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600 focus:bg-pink-50'
+                      }`}
                     >
                       {item.name}
                     </NavigationMenuLink>
@@ -67,15 +74,16 @@ const Navbar = () => {
           </NavigationMenu>
           
           {user && (
-            <div className="flex items-center gap-3 border-l pl-4">
-              <UserCircle2 className="h-5 w-5 text-muted-foreground" />
-              <div className="text-sm font-medium">
+            <div className="flex items-center gap-3 border-l pl-4 ml-2">
+              <UserCircle2 className="h-5 w-5 text-pink-600" />
+              <div className="text-sm font-medium text-gray-700">
                 {user.email}
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={signOut}
+                className="border-pink-300 text-pink-600 hover:bg-pink-50 hover:text-pink-700"
               >
                 Logout
               </Button>
@@ -92,18 +100,20 @@ const Navbar = () => {
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs pr-0">
+            <SheetContent side="right" className="w-full max-w-xs pr-0 bg-white">
               <Link to="/dashboard" className="flex items-center space-x-2 px-4 mb-4">
-                 {/* PERUBAHAN: Ukuran logo mobile juga disesuaikan */}
-                 <img src={AppLogo} alt="MantabJo Logo" className="h-10 w-auto" />
+                 <img src={AppLogo} alt="MantabJo Logo" className="h-12 w-auto" />
               </Link>
               <div className="flex flex-col gap-2 px-2">
                 {menuItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center py-2 px-4 rounded-md text-base font-medium ${
-                        isActive(item.path) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent'
+                    // Styling untuk link mobile dengan state aktif dan hover
+                    className={`flex items-center py-2.5 px-4 rounded-md text-base font-medium transition-colors duration-200 ${
+                        isActive(item.path)
+                          ? 'bg-pink-100 text-pink-700 font-bold'
+                          : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
                     }`}
                     onClick={() => setIsOpen(false)}
                   >
@@ -113,14 +123,14 @@ const Navbar = () => {
                 
                 {user && (
                   <>
-                    <div className="px-4 py-2 text-sm font-medium border-t pt-4 mt-4 flex items-center gap-2">
-                      <UserCircle2 className="h-4 w-4 text-muted-foreground"/>
+                    <div className="px-4 py-2 text-sm font-medium border-t pt-4 mt-4 flex items-center gap-2 text-gray-700">
+                      <UserCircle2 className="h-4 w-4 text-pink-600"/>
                       {user.email}
                     </div>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="mx-4"
+                      className="mx-4 border-pink-300 text-pink-600 hover:bg-pink-50 hover:text-pink-700"
                       onClick={() => {
                         signOut();
                         setIsOpen(false);
