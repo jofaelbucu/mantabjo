@@ -107,7 +107,7 @@ const Dashboard = () => {
       const endDateISO = endDate.toISOString();
 
       try {
-        const [modalRes, pengeluaranRes, hutangRes, transaksiRes] = await Promise.all([
+        const [modalRes, pengeluaranRes, hutangRes, transaksiRes, modalsData] = await Promise.all([
           supabase.from('modals').select('jumlah').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
           supabase.from('pengeluaran').select('jumlah, kategori, sumber_dana').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
           supabase.from('hutang').select('jumlah, status, jenis').eq('user_id', user.id).gte('tanggal_hutang', startDateISO).lte('tanggal_hutang', endDateISO),
@@ -149,25 +149,49 @@ const Dashboard = () => {
         const bebanUmumAplikasiIsiPulsa = pengeluaranData.filter(p => p.sumber_dana === 'aplikasi_isipulsa').reduce((sum, item) => sum + item.jumlah, 0);
 
 
+        // Calculate total biaya admin
+        const biayaAdminCash = modalsData
+          .filter(m => m.sumber_dana === 'cash' && m.biaya_admin)
+          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+
+        const biayaAdminSeabank = modalsData
+          .filter(m => m.sumber_dana === 'seabank' && m.biaya_admin)
+          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+
+        const biayaAdminGopay = modalsData
+          .filter(m => m.sumber_dana === 'gopay' && m.biaya_admin)
+          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+
+        const biayaAdminAplikasiIsiPulsa = modalsData
+          .filter(m => m.sumber_dana === 'aplikasi_isipulsa' && m.biaya_admin)
+          .reduce((sum, item) => sum + (item.biaya_admin || 0), 0);
+
+        const totalBiayaAdmin = biayaAdminCash + biayaAdminSeabank + biayaAdminGopay + biayaAdminAplikasiIsiPulsa;
+
         setStats({
-          totalPendapatan,
-          labaKotor,
-          labaBersih,
-          totalModal,
-          totalPengeluaranUsaha,
-          totalPengeluaranNonUsaha,
-          totalHutangBelumLunasUsaha,
-          totalHutangBelumLunasNonUsaha,
-          totalHutangBelumLunas: totalHutangBelumLunasUsaha + totalHutangBelumLunasNonUsaha,
-          modalTransaksiCash,
-          modalTransaksiSeabank,
-          modalTransaksiGopay,
-          modalTransaksiAplikasiIsiPulsa,
-          bebanUmumCash,
-          bebanUmumSeabank,
-          bebanUmumGopay,
-          bebanUmumAplikasiIsiPulsa,
-        });
+            totalPendapatan,
+            labaKotor,
+            labaBersih,
+            totalModal,
+            totalPengeluaranUsaha,
+            totalPengeluaranNonUsaha,
+            totalHutangBelumLunasUsaha,
+            totalHutangBelumLunasNonUsaha,
+            totalHutangBelumLunas: totalHutangBelumLunasUsaha + totalHutangBelumLunasNonUsaha,
+            modalTransaksiCash,
+            modalTransaksiSeabank,
+            modalTransaksiGopay,
+            modalTransaksiAplikasiIsiPulsa,
+            bebanUmumCash,
+            bebanUmumSeabank,
+            bebanUmumGopay,
+            bebanUmumAplikasiIsiPulsa,
+            biayaAdminCash,
+            biayaAdminSeabank,
+            biayaAdminGopay,
+            biayaAdminAplikasiIsiPulsa,
+            totalBiayaAdmin,
+          });
 
       } catch (error: any) {
         console.error('Error fetching dashboard data:', error);
@@ -344,7 +368,49 @@ const Dashboard = () => {
             className="bg-orange-50 dark:bg-orange-900/20 border-orange-200"
           />
           
-           <div className="col-span-full mt-4 mb-2 border-b">
+          {/* Bagian Biaya Admin */}
+          <div className="col-span-full mt-4 mb-2 border-b">
+             <h3 className="text-lg font-semibold tracking-tight">Rincian Biaya Admin Transfer</h3>
+          </div>
+          <StatCard
+            title={`Biaya Admin Cash`}
+            value={formatRupiah(stats.biayaAdminCash)}
+            icon={<Receipt className="h-4 w-4 text-purple-600" />}
+            className="bg-purple-50 dark:bg-purple-900/20 border-purple-200"
+          />
+          <StatCard
+            title={`Biaya Admin Seabank`}
+            value={formatRupiah(stats.biayaAdminSeabank)}
+            icon={<Receipt className="h-4 w-4 text-purple-600" />}
+            className="bg-purple-50 dark:bg-purple-900/20 border-purple-200"
+          />
+          <StatCard
+            title={`Biaya Admin Gopay`}
+            value={formatRupiah(stats.biayaAdminGopay)}
+            icon={<Receipt className="h-4 w-4 text-purple-600" />}
+            className="bg-purple-50 dark:bg-purple-900/20 border-purple-200"
+          />
+          <StatCard
+            title={`Biaya Admin IsiPulsa`}
+            value={formatRupiah(stats.biayaAdminAplikasiIsiPulsa)}
+            icon={<Receipt className="h-4 w-4 text-purple-600" />}
+            className="bg-purple-50 dark:bg-purple-900/20 border-purple-200"
+          />
+
+          <Card className="col-span-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-purple-50 dark:bg-purple-900/20 border-purple-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-base font-semibold">Total Biaya Admin ({getTitle()})</CardTitle>
+              <Receipt className="h-5 w-5 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                {formatRupiah(stats.totalBiayaAdmin)}
+              </p>
+              <p className="text-sm text-muted-foreground">Total biaya admin dari semua transfer</p>
+            </CardContent>
+          </Card>
+
+          <div className="col-span-full mt-4 mb-2 border-b">
              <h3 className="text-lg font-semibold tracking-tight">Lainnya</h3>
           </div>
           <StatCard
