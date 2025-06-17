@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
 import { formatRupiah, cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
@@ -14,7 +14,7 @@ import {
   ShieldAlert,
   Wallet,
   ShoppingCart, // Ikon untuk modal transaksi
-  BarChart3, // Ikon untuk laporan
+  // BarChart3, // Ikon untuk laporan
   Calendar as CalendarIcon, // Ikon untuk calendar
   RefreshCcw // Ikon untuk refresh laporan
 } from 'lucide-react';
@@ -126,7 +126,7 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   // --- TAMBAHAN: State untuk Laporan Keuangan ---
-  const [viewMode, setViewMode] = useState<'dashboard' | 'laporan'>('dashboard');
+  const [viewMode] = useState<'dashboard' | 'laporan'>('dashboard');
   const [reportType, setReportType] = useState<'harian' | 'mingguan' | 'bulanan'>('harian');
   const [laporanHarian, setLaporanHarian] = useState<LaporanKeuanganHarian[]>([]);
   const [laporanMingguan, setLaporanMingguan] = useState<LaporanKeuanganMingguan[]>([]);

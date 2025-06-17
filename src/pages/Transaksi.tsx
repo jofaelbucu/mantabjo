@@ -76,12 +76,12 @@ const Transaksi = () => {
   const [customerSearch, setCustomerSearch] = useState('');
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [filterType, setFilterType] = useState<'today' | 'date' | 'month' | 'date_range'>('today');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  // selectedDate is not used anywhere, so we can remove it
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
   const [filterMonth, setFilterMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM format
   const [filterStartDate, setFilterStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [filterEndDate, setFilterEndDate] = useState(new Date().toISOString().split('T')[0]);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  // const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // Jumlah item per halaman untuk pagination
   const maxVisibleItems = 5; // Maksimal item yang terlihat sebelum scroll
@@ -546,7 +546,9 @@ const Transaksi = () => {
                         // Reset today's date when selecting 'today' filter
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
-                        setSelectedDate(today);
+                        // We don't need to set selectedDate since we're not using it
+                        // Just update the filterDate directly
+                        setFilterDate(today.toISOString().split('T')[0]);
                       }} 
                       className="h-4 w-4 border-gray-300" 
                     />

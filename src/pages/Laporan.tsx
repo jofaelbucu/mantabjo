@@ -27,8 +27,18 @@ export interface LabaRugiData {
   detailPendapatan: any[];
   detailHPP: any[];
   detailBebanUsaha: any[];
-  detailBiayaAdmin: any[];
+  detailBiayaAdmin: BiayaAdminDetail[];
   detailBiayaNonUsaha: any[];
+}
+
+// Interface untuk biaya admin berdasarkan sumber dana
+interface BiayaAdminDetail {
+  sumber_dana: string;
+  biaya_admin: number;
+}
+
+interface BiayaAdminBySumberDana {
+  [sumberDana: string]: number;
 }
 
 export interface ArusKasData {
@@ -216,11 +226,11 @@ const Laporan = () => {
         const totalBebanUsaha = pengeluaranUsahaData.reduce((sum, item) => sum + item.jumlah, 0);
         
         // Perhitungan biaya admin
-        const biayaAdminDetails = [];
+        const biayaAdminDetails: BiayaAdminDetail[] = [];
         let totalBiayaAdmin = 0;
         
         // Mengelompokkan biaya admin berdasarkan sumber dana
-        const biayaAdminBySumberDana = {};
+        const biayaAdminBySumberDana: BiayaAdminBySumberDana = {};
         modalsData.forEach(item => {
           const sumberDana = item.sumber_dana;
           const biayaAdmin = Number(item.biaya_admin) || 0;

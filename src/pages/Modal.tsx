@@ -100,7 +100,7 @@ const Modal = () => {
   });
 
   const dariSumber = watchTransfer('dari_sumber');
-  const keSumber = watchTransfer('ke_sumber');
+  // const keSumber = watchTransfer('ke_sumber');
 
   const openTransferDialog = () => {
     resetTransfer({
@@ -362,7 +362,7 @@ const Modal = () => {
                       resetTransfer({
                         jumlah: 0,
                         dari_sumber: saldo.nama,
-                        ke_sumber: saldos.find(s => s.nama !== saldo.nama)?.nama || '',
+                        ke_sumber: saldos.find(s => s.nama !== saldo.nama)?.nama || 'cash',
                         biaya_admin: 0,
                         keterangan: `Transfer dari ${saldo.label}`,
                         tanggal: new Date().toISOString().split('T')[0],
