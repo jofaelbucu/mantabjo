@@ -387,15 +387,15 @@ const Dashboard = () => {
         
         {/* --- TAMBAHAN: Toggle antara Dashboard dan Laporan --- */}
         <div className="flex space-x-2 mt-4 md:mt-0">
-          <Button 
+          {/* <Button 
             variant={viewMode === 'dashboard' ? "default" : "outline"}
             onClick={() => setViewMode('dashboard')}
             className="flex items-center gap-2"
           >
             <Wallet className="h-4 w-4" />
             Dashboard
-          </Button>
-          <Button 
+          </Button> */}
+          {/* <Button 
             variant={viewMode === 'laporan' ? "default" : "outline"}
             onClick={() => {
               setViewMode('laporan');
@@ -405,7 +405,7 @@ const Dashboard = () => {
           >
             <BarChart3 className="h-4 w-4" />
             Laporan
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -452,7 +452,8 @@ const Dashboard = () => {
               <p className={`text-4xl font-bold ${isNetProfitPositive ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}`}>
                 {isNetProfitPositive ? '+' : ''}{formatRupiah(stats.labaBersih)}
               </p>
-              <p className="text-sm text-muted-foreground">Perhitunagnnya adalah Laba Kotor - Beban Usaha - Biaya Admin - Biaya Non Usaha</p>
+              <p className="text-sm text-muted-foreground">Perhitungannya adalah</p>
+              <p className="text-sm text-muted-foreground">Laba Kotor - Beban Usaha - Biaya Admin - Biaya Non Usaha</p>
             </CardContent>
           </Card>
           <StatCard

@@ -318,7 +318,7 @@ const Laporan = () => {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                 <div className="space-y-2">
                     <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Pendapatan</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalPendapatan)}</p></CardContent></Card>
                     <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Laba Kotor</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.labaKotor)}</p></CardContent></Card>
                     <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Beban Usaha</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalBebanUsaha)}</p></CardContent></Card>
