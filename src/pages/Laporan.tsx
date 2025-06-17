@@ -11,21 +11,24 @@ import { toast } from '@/components/ui/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import jsPDF from 'jspdf';
-// --- PERBAIKAN 1: Ubah cara impor jspdf-autotable ---
 import autoTable from 'jspdf-autotable';
 
 import logo from '@/assets/mantabjo-merpati.png';
 
-// --- Tipe Data (Tidak berubah) ---
+// --- Tipe Data yang Diperbarui ---
 export interface LabaRugiData {
   totalPendapatan: number;
   totalHPP: number;
   labaKotor: number;
-  totalBeban: number;
+  totalBebanUsaha: number;
+  totalBiayaAdmin: number;
+  totalBiayaNonUsaha: number;
   labaBersih: number;
   detailPendapatan: any[];
   detailHPP: any[];
-  detailBeban: any[];
+  detailBebanUsaha: any[];
+  detailBiayaAdmin: any[];
+  detailBiayaNonUsaha: any[];
 }
 
 export interface ArusKasData {
@@ -33,6 +36,7 @@ export interface ArusKasData {
     penerimaanPelanggan: number;
     pembayaranHPP: number;
     pembayaranBeban: number;
+    pembayaranBiayaAdmin: number;
   };
   pendanaan: {
     setoranModal: number;
@@ -79,13 +83,20 @@ const generateLabaRugiPDF = (report: { data: LabaRugiData; periode: string }) =>
     [{ content: 'Laba Kotor', styles: { fontStyle: 'bold' as 'bold', fillColor: '#f0f0f0' } }, '', { content: formatRupiah(data.labaKotor), styles: { fontStyle: 'bold' as 'bold' } }],
     ['', '', ''],
     ['Beban Operasional', '', ''],
-    ...data.detailBeban.map(item => [`  - ${item.keterangan}`, `(${formatRupiah(item.jumlah)})`, '']),
-    [{ content: 'Total Beban Operasional', styles: { fontStyle: 'bold' as 'bold' } }, '', `(${formatRupiah(data.totalBeban)})`],
+    ...data.detailBebanUsaha.map(item => [`  - ${item.keterangan}`, `(${formatRupiah(item.jumlah)})`, '']),
+    [{ content: 'Total Beban Operasional', styles: { fontStyle: 'bold' as 'bold' } }, '', `(${formatRupiah(data.totalBebanUsaha)})`],
+    ['', '', ''],
+    ['Biaya Admin Transfer', '', ''],
+    ...data.detailBiayaAdmin.map(item => [`  - Biaya Admin ${item.sumber_dana}`, `(${formatRupiah(item.biaya_admin)})`, '']),
+    [{ content: 'Total Biaya Admin', styles: { fontStyle: 'bold' as 'bold' } }, '', `(${formatRupiah(data.totalBiayaAdmin)})`],
+    ['', '', ''],
+    ['Biaya Non Usaha', '', ''],
+    ...data.detailBiayaNonUsaha.map(item => [`  - ${item.keterangan || 'Biaya Non Usaha'}`, `(${formatRupiah(item.jumlah)})`, '']),
+    [{ content: 'Total Biaya Non Usaha', styles: { fontStyle: 'bold' as 'bold' } }, '', `(${formatRupiah(data.totalBiayaNonUsaha)})`],
     ['', '', ''],
     [{ content: 'Laba Bersih', styles: { fontStyle: 'bold' as 'bold', fillColor: data.labaBersih >= 0 ? '#d4edda' : '#f8d7da' } }, '', { content: formatRupiah(data.labaBersih), styles: { fontStyle: 'bold' as 'bold' } }]
   ];
   
-  // --- PERBAIKAN 2: Ubah cara pemanggilan fungsi autoTable ---
   autoTable(doc, {
     startY: 45,
     head: [['Deskripsi', 'Jumlah', 'Total']],
@@ -108,6 +119,7 @@ const generateArusKasPDF = (report: { data: ArusKasData; periode: string }) => {
       ['Penerimaan dari Pelanggan', formatRupiah(data.operasi.penerimaanPelanggan), ''],
       ['Pembayaran HPP', `(${formatRupiah(data.operasi.pembayaranHPP)})`, ''],
       ['Pembayaran Beban Operasional', `(${formatRupiah(data.operasi.pembayaranBeban)})`, ''],
+      ['Pembayaran Biaya Admin', `(${formatRupiah(data.operasi.pembayaranBiayaAdmin)})`, ''],
       [{ content: 'Arus Kas Bersih dari Operasi', styles: { fontStyle: 'bold' as 'bold' } }, '', { content: formatRupiah(data.arusKasOperasiBersih), styles: { fontStyle: 'bold' as 'bold' } }],
       ['', '', ''],
       [{ content: 'Arus Kas dari Aktivitas Investasi', colSpan: 3, styles: { fontStyle: 'bold' as 'bold', fillColor: '#f0f0f0' } }],
@@ -123,7 +135,6 @@ const generateArusKasPDF = (report: { data: ArusKasData; periode: string }) => {
       [{ content: 'Kenaikan (Penurunan) Kas Bersih', styles: { fontStyle: 'bold' as 'bold', fillColor: '#f0f0f0' } }, '', { content: formatRupiah(data.kenaikanKasBersih), styles: { fontStyle: 'bold' as 'bold' } }],
     ];
   
-    // --- PERBAIKAN 3: Ubah cara pemanggilan fungsi autoTable di sini juga ---
     autoTable(doc, {
         startY: 45,
         head: [['Deskripsi', 'Jumlah', 'Total']],
@@ -137,7 +148,7 @@ const generateArusKasPDF = (report: { data: ArusKasData; periode: string }) => {
 };
 
 
-// --- Komponen Utama Halaman Laporan (Tidak ada perubahan di sini) ---
+// --- Komponen Utama Halaman Laporan ---
 const Laporan = () => {
   const { user } = useAuth();
   const [reportType, setReportType] = useState<'laba-rugi' | 'arus-kas'>('laba-rugi');
@@ -168,42 +179,101 @@ const Laporan = () => {
 
     try {
       if (reportType === 'laba-rugi') {
+        // Mengambil data transaksi
         const { data: transaksiData, error: trxErr } = await supabase.from('transaksi')
-            .select('harga_jual, harga_beli, jenis_transaksi, created_at, status')
+            .select('harga_jual, harga_beli, jenis_transaksi, created_at, status, sumber_dana')
             .eq('user_id', user.id).eq('status', 'sukses')
             .gte('created_at', startDateISO).lte('created_at', endDateISO);
         if (trxErr) throw trxErr;
 
-        const { data: pengeluaranData, error: pengErr } = await supabase.from('pengeluaran')
-            .select('jumlah, keterangan, tanggal, kategori')
+        // Mengambil data pengeluaran usaha
+        const { data: pengeluaranUsahaData, error: pengUsahaErr } = await supabase.from('pengeluaran')
+            .select('jumlah, keterangan, tanggal, kategori, sumber_dana')
             .eq('user_id', user.id).eq('kategori', 'usaha')
             .gte('tanggal', startDateISO).lte('tanggal', endDateISO);
-        if (pengErr) throw pengErr;
+        if (pengUsahaErr) throw pengUsahaErr;
         
+        // Mengambil data pengeluaran non usaha
+        const { data: pengeluaranNonUsahaData, error: pengNonUsahaErr } = await supabase.from('pengeluaran')
+            .select('jumlah, keterangan, tanggal, kategori, sumber_dana')
+            .eq('user_id', user.id).eq('kategori', 'non_usaha')
+            .gte('tanggal', startDateISO).lte('tanggal', endDateISO);
+        if (pengNonUsahaErr) throw pengNonUsahaErr;
+        
+        // Mengambil data biaya admin
+        const { data: modalsData, error: modalsErr } = await supabase.from('modals')
+            .select('jumlah, sumber_dana, biaya_admin, tanggal')
+            .eq('user_id', user.id)
+            .gte('tanggal', startDateISO).lte('tanggal', endDateISO);
+        if (modalsErr) throw modalsErr;
+        
+        // Perhitungan total pendapatan dan HPP
         const totalPendapatan = transaksiData.reduce((sum, item) => sum + item.harga_jual, 0);
         const totalHPP = transaksiData.reduce((sum, item) => sum + item.harga_beli, 0);
         const labaKotor = totalPendapatan - totalHPP;
-        const totalBeban = pengeluaranData.reduce((sum, item) => sum + item.jumlah, 0);
-        const labaBersih = labaKotor - totalBeban;
+        
+        // Perhitungan beban usaha
+        const totalBebanUsaha = pengeluaranUsahaData.reduce((sum, item) => sum + item.jumlah, 0);
+        
+        // Perhitungan biaya admin
+        const biayaAdminDetails = [];
+        let totalBiayaAdmin = 0;
+        
+        // Mengelompokkan biaya admin berdasarkan sumber dana
+        const biayaAdminBySumberDana = {};
+        modalsData.forEach(item => {
+          const sumberDana = item.sumber_dana;
+          const biayaAdmin = Number(item.biaya_admin) || 0;
+          
+          if (!biayaAdminBySumberDana[sumberDana]) {
+            biayaAdminBySumberDana[sumberDana] = 0;
+          }
+          
+          biayaAdminBySumberDana[sumberDana] += biayaAdmin;
+          totalBiayaAdmin += biayaAdmin;
+        });
+        
+        // Membuat detail biaya admin
+        Object.keys(biayaAdminBySumberDana).forEach(sumberDana => {
+          biayaAdminDetails.push({
+            sumber_dana: sumberDana,
+            biaya_admin: biayaAdminBySumberDana[sumberDana]
+          });
+        });
+        
+        // Perhitungan biaya non usaha
+        const totalBiayaNonUsaha = pengeluaranNonUsahaData.reduce((sum, item) => sum + item.jumlah, 0);
+        
+        // Perhitungan laba bersih
+        const labaBersih = labaKotor - totalBebanUsaha - totalBiayaAdmin - totalBiayaNonUsaha;
 
         setLabaRugiData({
-            totalPendapatan, totalHPP, labaKotor, totalBeban, labaBersih,
+            totalPendapatan, 
+            totalHPP, 
+            labaKotor, 
+            totalBebanUsaha, 
+            totalBiayaAdmin,
+            totalBiayaNonUsaha,
+            labaBersih,
             detailPendapatan: transaksiData,
             detailHPP: transaksiData,
-            detailBeban: pengeluaranData
+            detailBebanUsaha: pengeluaranUsahaData,
+            detailBiayaAdmin: biayaAdminDetails,
+            detailBiayaNonUsaha: pengeluaranNonUsahaData
         });
       } else if (reportType === 'arus-kas') {
         const [transaksiRes, pengeluaranRes, modalRes, hutangRes] = await Promise.all([
             supabase.from('transaksi').select('harga_jual, harga_beli').eq('user_id', user.id).eq('status', 'sukses').gte('created_at', startDateISO).lte('created_at', endDateISO),
             supabase.from('pengeluaran').select('jumlah, kategori').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
-            supabase.from('modals').select('jumlah').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
+            supabase.from('modals').select('jumlah, biaya_admin').eq('user_id', user.id).gte('tanggal', startDateISO).lte('tanggal', endDateISO),
             supabase.from('hutang').select('jumlah, status, jenis, tanggal_lunas, tanggal_hutang').eq('user_id', user.id),
         ]);
         
         const penerimaanPelanggan = transaksiRes.data?.reduce((sum, t) => sum + t.harga_jual, 0) || 0;
         const pembayaranHPP = transaksiRes.data?.reduce((sum, t) => sum + t.harga_beli, 0) || 0;
         const pembayaranBeban = pengeluaranRes.data?.filter(p => p.kategori === 'usaha').reduce((sum, p) => sum + p.jumlah, 0) || 0;
-        const arusKasOperasiBersih = penerimaanPelanggan - pembayaranHPP - pembayaranBeban;
+        const pembayaranBiayaAdmin = modalRes.data?.reduce((sum, m) => sum + (Number(m.biaya_admin) || 0), 0) || 0;
+        const arusKasOperasiBersih = penerimaanPelanggan - pembayaranHPP - pembayaranBeban - pembayaranBiayaAdmin;
 
         const setoranModal = modalRes.data?.reduce((sum, m) => sum + m.jumlah, 0) || 0;
         const bebanNonUsaha = pengeluaranRes.data?.filter(p => p.kategori === 'non_usaha').reduce((sum, p) => sum + p.jumlah, 0) || 0;
@@ -212,7 +282,7 @@ const Laporan = () => {
         const arusKasPendanaanBersih = setoranModal + penerimaanPinjaman - bebanNonUsaha - pemberianPinjaman;
 
         setArusKasData({
-          operasi: { penerimaanPelanggan, pembayaranHPP, pembayaranBeban },
+          operasi: { penerimaanPelanggan, pembayaranHPP, pembayaranBeban, pembayaranBiayaAdmin },
           pendanaan: { setoranModal, bebanNonUsaha, pemberianPinjaman, penerimaanPinjaman },
           arusKasOperasiBersih,
           arusKasPendanaanBersih,
@@ -248,11 +318,13 @@ const Laporan = () => {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                 <div className="space-y-2">
                     <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Pendapatan</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalPendapatan)}</p></CardContent></Card>
                     <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Laba Kotor</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.labaKotor)}</p></CardContent></Card>
-                    <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Beban</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalBeban)}</p></CardContent></Card>
-                    <Card className={labaRugiData.labaBersih >= 0 ? 'bg-green-50' : 'bg-red-50'}>
+                    <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Beban Usaha</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalBebanUsaha)}</p></CardContent></Card>
+                    <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Biaya Admin</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalBiayaAdmin)}</p></CardContent></Card>
+                    <Card><CardHeader className='pb-2'><CardTitle className='text-sm font-medium text-gray-900'>Total Biaya Non Usaha</CardTitle></CardHeader><CardContent><p className='text-2xl font-bold text-gray-900'>{formatRupiah(labaRugiData.totalBiayaNonUsaha)}</p></CardContent></Card>
+                    <Card className={labaRugiData.labaBersih >= 0 ? 'bg-green-50 col-span-3' : 'bg-red-50 col-span-3'}>
                         <CardHeader className='pb-2'><CardTitle className={`text-sm font-medium ${labaRugiData.labaBersih >= 0 ? 'text-green-900' : 'text-red-900'}`}>Laba Bersih</CardTitle></CardHeader>
                         <CardContent><p className={`text-2xl font-bold ${labaRugiData.labaBersih >= 0 ? 'text-green-900' : 'text-red-900'}`}>{formatRupiah(labaRugiData.labaBersih)}</p></CardContent>
                     </Card>
@@ -267,11 +339,15 @@ const Laporan = () => {
                          {labaRugiData.detailPendapatan.map((item, idx) => <div key={idx} className="flex justify-between text-sm border-b py-1"><span className='text-gray-800'>{item.jenis_transaksi}</span><span className='text-gray-900 font-medium'>{formatRupiah(item.harga_jual)}</span></div>)}
                        </div>
                        <div>
-                         <h3 className="font-semibold mb-2 text-gray-900">Rincian Beban ({labaRugiData.detailHPP.length + labaRugiData.detailBeban.length})</h3>
+                         <h3 className="font-semibold mb-2 text-gray-900">Rincian Beban ({labaRugiData.detailHPP.length + labaRugiData.detailBebanUsaha.length + labaRugiData.detailBiayaAdmin.length + labaRugiData.detailBiayaNonUsaha.length})</h3>
                          <p className='text-xs font-bold text-gray-700 mb-1'>Harga Pokok Penjualan</p>
                          {labaRugiData.detailHPP.map((item, idx) => <div key={idx} className="flex justify-between text-sm border-b py-1"><span className='text-gray-800'>Modal {item.jenis_transaksi}</span><span className='text-gray-900 font-medium'>{formatRupiah(item.harga_beli)}</span></div>)}
                          <p className='text-xs font-bold text-gray-700 mt-2 mb-1'>Beban Operasional</p>
-                         {labaRugiData.detailBeban.map((item, idx) => <div key={idx} className="flex justify-between text-sm border-b py-1"><span className='text-gray-800'>{item.keterangan}</span><span className='text-gray-900 font-medium'>{formatRupiah(item.jumlah)}</span></div>)}
+                         {labaRugiData.detailBebanUsaha.map((item, idx) => <div key={idx} className="flex justify-between text-sm border-b py-1"><span className='text-gray-800'>{item.keterangan}</span><span className='text-gray-900 font-medium'>{formatRupiah(item.jumlah)}</span></div>)}
+                         <p className='text-xs font-bold text-gray-700 mt-2 mb-1'>Biaya Admin Transfer</p>
+                         {labaRugiData.detailBiayaAdmin.map((item, idx) => <div key={idx} className="flex justify-between text-sm border-b py-1"><span className='text-gray-800'>Biaya Admin {item.sumber_dana}</span><span className='text-gray-900 font-medium'>{formatRupiah(item.biaya_admin)}</span></div>)}
+                         <p className='text-xs font-bold text-gray-700 mt-2 mb-1'>Biaya Non Usaha</p>
+                         {labaRugiData.detailBiayaNonUsaha.map((item, idx) => <div key={idx} className="flex justify-between text-sm border-b py-1"><span className='text-gray-800'>{item.keterangan || 'Biaya Non Usaha'}</span><span className='text-gray-900 font-medium'>{formatRupiah(item.jumlah)}</span></div>)}
                        </div>
                     </AccordionContent>
                   </AccordionItem>
