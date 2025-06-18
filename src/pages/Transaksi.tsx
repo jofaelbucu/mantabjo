@@ -50,21 +50,35 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect } from 'react';
 
+// Definisikan tipe dasar untuk form transaksi
+type TransaksiFormBase = {
+  jenis_transaksi: string;
+  nomor_tujuan: string;
+  pelanggan_id?: string;
+  nominal: number;
+  harga_beli: number;
+  harga_jual: number;
+  keterangan?: string;
+  sumber_dana: 'cash' | 'seabank' | 'gopay' | 'aplikasi_isipulsa';
+};
+
+// Gunakan tipe dasar untuk definisi schema Zod
 const transaksiSchema = z.object({
   jenis_transaksi: z.string().min(1, 'Jenis transaksi wajib diisi'),
   nomor_tujuan: z.string().min(3, 'Nomor tujuan wajib diisi'),
   pelanggan_id: z.string().optional(),
+  nominal: z.number(), // Nominal wajib ada
   harga_beli: z.coerce.number().min(1, 'Harga beli (modal) wajib diisi'),
   harga_jual: z.coerce.number().min(1, 'Harga jual wajib diisi'),
   keterangan: z.string().optional(),
   sumber_dana: z.enum(['cash', 'seabank', 'gopay', 'aplikasi_isipulsa']),
 }).transform((data) => ({
   ...data,
-  nominal: data.harga_beli
+  nominal: data.harga_beli // Pastikan nominal selalu sama dengan harga_beli
 }));
 
-// Pastikan tipe TransaksiFormValues mencakup nominal sebagai nilai yang wajib ada
-type TransaksiFormValues = z.infer<typeof transaksiSchema> & { nominal: number };
+// Gunakan tipe dasar untuk TransaksiFormValues
+type TransaksiFormValues = TransaksiFormBase;
 
 const Transaksi = () => {
   const { user } = useAuth();
@@ -279,7 +293,7 @@ const Transaksi = () => {
   
     try {
       // Verifikasi koneksi database terlebih dahulu
-      const { data: testData, error: testError } = await supabase.from('transaksi').select('id').limit(1);
+      const { error: testError } = await supabase.from('transaksi').select('id').limit(1);
       if (testError) {
         throw new Error('Gagal terhubung ke database. Silakan coba lagi.');
       }
